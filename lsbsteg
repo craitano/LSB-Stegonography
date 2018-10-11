@@ -1,0 +1,205 @@
+#!/usr/bin/env python3
+
+__author__ = "Chris Raitano"
+__copyright__ = "Copyright 2018, Chris Raitano"
+__license__ = "GPL"
+__version__ = "1.0"
+__maintainer__ = "Chris Raitano"
+
+
+'''
+    An LSB decoder for extracting steganographic data from PNG images.
+    By default, processes r, g, b, and rgb
+    Usage: ./lsbsteg <filename> [options]...
+    Optional parameters:
+        -r
+            only process the red channel
+        -b
+            only process the blue channel
+        -g
+            only process the blue channel
+        -a
+            only process the alpha channel
+        -rgba
+            process r, g, b, and alpha channels
+        -s
+            save the decoded data as black and white images
+        -f
+            flip the decoded bits
+'''
+
+from PIL import Image
+import sys
+import codecs
+
+
+'''
+    Get the LSB at location (x,y)
+'''
+def get_bit(img, x, y, bit ):
+    # binary values formatted as 0bxxxxxxxx, get just bits
+    binary  = bin(img.getpixel((x, y)))[2:]
+    # pad with leading 0s if less than 8 digits
+    while len(binary) < 8:
+        binary = "0" + binary
+    return binary[bit]
+
+'''
+    color_selector: an integer value representing the color channel to use
+        (0: red, 1: green, 2: blue, 3: alpha)
+    bit_selector: an integer value representing the bit to inspect (0-7) 
+    file_location: the relative filepath of the image
+'''
+def decode_image(color_selector, file_location, bit_selector = 7, save_png = False, flip_bits = False):
+    decoded_bits = ""
+    # Extract the specified color channel
+    encoded_image = Image.open(file_location)
+    color_channel = encoded_image.split()[color_selector]
+    
+    # Get the sizing info
+    x_size = encoded_image.size[0]
+    y_size = encoded_image.size[1]
+ 
+    if save_png:
+        # Create an image object to store the decoded data
+        decoded_image = Image.new("RGB", encoded_image.size)
+        pixels = decoded_image.load()
+
+    # Get the LSB of the first pixel
+    first = get_bit(color_channel, 0, 0, bit_selector)
+
+    for j in range(y_size):
+        for i in range(x_size):
+            bit = get_bit(color_channel, i, j, bit_selector)
+            # flip bits
+            if flip_bits:
+                if bit == "0":
+                    bit = "1"
+                else:
+                    bit = "0"
+            # concatenate the bit
+            decoded_bits += bit
+            # set pixel value in decoded image
+            if save_png:
+                if bit == "0":
+                    pixels[i, j] = (0, 0, 0)
+                else:
+                    pixels[i, j] = (255, 255, 255)
+    if save_png:
+        # save decoded png
+        decoded_image.save(str(color_selector) + "_" + file_location)
+    return decoded_bits
+
+'''
+    Attempt to convert a given utf-8 encoded bit string to text, adding padding if necessary
+'''
+def bin_to_utf8(bits):
+    i = 0;
+    while i < 7:
+        try:
+            n = int(bits, 2)
+            return codecs.decode(n.to_bytes((n.bit_length() + 7) // 8, 'big'), 'utf-8')
+        except:
+            bits = "0" + bits
+        i += 1
+    return None
+
+'''
+    Print string if it exists. Otherwise print "No message found"
+'''
+def print_msg(string):
+    if string == None:
+        print("No message found")
+    else:
+        print(string)
+
+def main():
+    # Control variables
+    r = True
+    g = True
+    b = True
+    a = False
+    tookColorSpecifier = ""
+    s = False
+    f = False
+    
+
+    filename = None
+    # Parse Arguments
+    for i, arg in enumerate(sys.argv):
+        if i == 1:
+            filename = arg
+        if i > 1:
+            if arg == '-r' or arg == '-g' or arg == '-b' or arg == '-a' or arg == '-rgba':
+                if tookColorSpecifier == "":
+                    tookColorSpecifier = arg
+                else:
+                    print("Cant use both " + tookColorSpecifier + " and " + arg)
+                    print("Choose at most 1 of the following: -r -g -b -a -rgba")
+                    return -1
+            if arg == '-r':
+                g = False
+                b = False
+            elif arg == '-g':
+                r = False
+                b = False
+            elif arg == '-b':
+                r = False
+                g = False
+            elif arg == '-a':
+                a = True
+                r =False
+                g = False
+                b = False
+            elif arg == '-rgba':
+                a = True
+            elif arg == '-s':
+                s = True
+            elif arg == '-f':
+                f = True
+            else:
+                print("Arg " + arg + " not recognised")
+
+    if filename == None:
+        print("Missing required parameter: filename")
+        return -1
+    # Decode specified color channels
+    red = ""
+    blue = ""
+    green = ""
+    alpha = ""
+    if r:
+        print("Decoding red channel")
+        red = decode_image(0, filename, save_png = s, flip_bits = f)
+        print_msg(bin_to_utf8(red))
+    if g:
+        print("Decoding green channel")
+        green = decode_image(1, filename, save_png = s, flip_bits = f)
+        print_msg(bin_to_utf8(green))    
+    if b:
+        print("Decoding blue channel")
+        blue = decode_image(2, filename, save_png = s, flip_bits = f)
+        print_msg(bin_to_utf8(blue))
+    if a:
+        print("Decoding alpha channel")
+        alpha = decode_image(3, filename, save_png = s, flip_bits = f)
+        print_msg(bin_to_utf8(alpha))
+    if r and g and b:
+        rgb = ""
+        print("Decoding rgb")
+        for i, c in enumerate(red):
+            rgb += c
+            rgb += green[i]
+            rgb += blue[i]
+        print_msg(bin_to_utf8(rgb))
+    if r and g and b and a:
+        rgba = ""
+        print("Decoding rgba")
+        for i, c in enumerate(red):
+            rgba += c
+            rgba += green[i]
+            rgba += blue[i]
+            rgba += alpha[i]
+        print_msg(bin_to_utf8(rgba))
+
+if __name__ == "__main__": main()
