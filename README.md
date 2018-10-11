@@ -69,5 +69,5 @@ If the directory containing the lsbsteg script is not specified in your path var
   ```
 * Example using an absolute filepath:
   ```
-  /home/user/lsbsteg my_img.png
-  ```
+  /home/user/lsbsteg my_img.png
+  ```
