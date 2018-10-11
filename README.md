@@ -60,3 +60,14 @@ This will process only the alpha channel
 
 ## License
 This project is licensed under the GPL
+
+## Troubleshooting
+If the directory containing the lsbsteg script is not specified in your path variable a filepath must be included
+* Example using a relative filepath:
+  ```
+  ./lsbsteg my_img.png
+  ```
+* Example using an absolute filepath:
+  ```
+  /home/user/lsbsteg my_img.png
+  ```
