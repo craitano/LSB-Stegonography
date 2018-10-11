@@ -10,11 +10,11 @@ This will get you started using the LSB Stegonography tool
 ### Running the Script
 The general usage is as follows:
 ```
-lsbsteg <filename> [Options]...
+$ lsbsteg <filename> [Options]...
 ```
 Example: 
 ```
-lsbsteg my_img.png
+$ lsbsteg my_img.png
 ```
 This will attempt to find encoded data in the red, green and blue color channels as well as in a combined rgb channel
 
@@ -39,7 +39,7 @@ This will attempt to find encoded data in the red, green and blue color channels
 
 Example:
 ```
-lsbsteg my_img.png -a
+$ lsbsteg my_img.png -a
 ```
 This will process only the alpha channel
 #### Additionally these arguments can be used or ommitted
@@ -49,7 +49,7 @@ This will process only the alpha channel
   The image will be saved as <num>_<filename> where num refers to a specific color channel (0: red, 1: green, 2: blue, 3: alpha)
   Example:
   ```
-  lsbsteg my_img.png -a -s
+  $ lsbsteg my_img.png -a -s
   ```  
   The will save an image representing the least significant bits of the alpha channel
 * -f
@@ -65,9 +65,20 @@ This project is licensed under the GPL
 If the directory containing the lsbsteg script is not specified in your path variable a filepath must be included
 * Example using a relative filepath:
   ```
-  ./lsbsteg my_img.png
+  $ ./lsbsteg my_img.png
   ```
 * Example using an absolute filepath:
   ```
-  /home/user/lsbsteg my_img.png
+  $ /home/user/lsbsteg my_img.png
+  ```
+If script is not executable you can either change the permissions or run it with the python command
+* Changing permissions
+  ```
+  $ sudo chmod +x lsbsteg
+  $ lsbsteg my_img.png
+  ```
+  or
+* Running with python command
+  ```
+  $ python lsbsteg my_img.png
   ```
