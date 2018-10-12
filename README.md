@@ -59,7 +59,7 @@ This will process only the alpha channel
 **Chris Raitano**
 
 ## License
-This project is licensed under the GPL
+This project is licensed under the GPL - see the [LICENSE](LICENSE) file
 
 ## Troubleshooting
 If the directory containing the lsbsteg script is not specified in your path variable a filepath must be included
