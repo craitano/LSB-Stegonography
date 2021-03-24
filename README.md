@@ -1,8 +1,7 @@
 # LSB Stegonography
-A LSB  steganography tool for finding hidden messages in PNG files
+A LSB  steganography tool for finding hidden messages in PNG files. This will find messages hidden in the last bit of png pixel values. Can grab bits from only a single channel (r,g,b or a) or grab bits from each channel and combine them
 
 ## Instructions
-This will get you started using the LSB Stegonography tool
 
 ### Prerequisites
 * Python 3
